@@ -15,10 +15,12 @@ public class NestedReader {
     }
 
     public void getNewInput(BufferedReader input) throws IOException {
+        int state;
         this.input = input;
         c = input.read();
         while(c!=-1) {
-            consume();
+            state = consume();
+            if(state == -1) break;
         }
         System.out.println(getNestedString());
     }
@@ -27,8 +29,15 @@ public class NestedReader {
         return buf.toString();
     }
 
-    void consume() throws IOException {
+    int consume() throws IOException {
+        int flag = 0;
         buf.append((char)c);
+        if(c == 47) flag = 1;
         c = input.read();
+        if(flag == 1 && c == 47) {
+            buf.deleteCharAt(buf.length()-1);
+            return -1;
+        }
+        return 0;
     }
 }
