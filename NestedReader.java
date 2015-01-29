@@ -10,11 +10,21 @@ public class NestedReader {
     BufferedReader input; // where are we reading from?
     int c; // current character of lookahead; reset upon each getNestedString() call
 
-    public NestedReader(BufferedReader input) {
-        this.input = input;
+    public NestedReader() {
+        this.buf = new StringBuilder();
     }
+
+    public void getNewInput(BufferedReader input) throws IOException {
+        this.input = input;
+        c = input.read();
+        while(c!=-1) {
+            consume();
+        }
+        System.out.println(getNestedString());
+    }
+
     public String getNestedString() throws IOException {
-        return "";
+        return buf.toString();
     }
 
     void consume() throws IOException {
