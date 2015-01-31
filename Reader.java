@@ -14,42 +14,45 @@ public class Reader {
     static BufferedReader input; // where are we reading from?
     static int c; // current character of lookahead; reset upon each getNestedString() call
     static Stack<Integer> s = new Stack();
-    private static int classAmount = 0;
+    private static int classIndex = 0;
 
-    public static int getClassAmount() {
-        return classAmount;
+    public static int getClassIndex() {
+        return classIndex;
     }
 
     public static void getNewInput(BufferedReader input) throws IOException {
         int state;
+        Reader.buf = new StringBuilder();
         Reader.input = input;
         c = input.read();
         while(c!=-1) {
             state = consume();
             if(state == -1) break;
         }
-        System.out.println(getNestedString());
-    }
+        //System.out.println(getNestedString());
 
+        Reader.classIndex++;
+    }
 
     //This function's original code comes from https://github.com/parrt/cs652/blob/master/projects/Java-REPL.md
     public static boolean isDeclaration() throws IOException {
-        copyFile("REPL_t.java","t.java");
+        //copyFile("tem/REPL_t_0.java","tem2/t.java");
         addTestDeclaration();
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
-        Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Arrays.asList("t.java"));
-        //JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
+        Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Arrays.asList("tem2/t.java"));
         JavacTask task = (JavacTask) compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
 
         task.parse();
+        System.out.print("parase(): ");
+        System.out.println(diagnostics.getDiagnostics().size() == 0);
         return diagnostics.getDiagnostics().size() == 0;
     }
 
     public static String getNestedString() throws IOException {
-        return buf.toString();
+        return Reader.buf.toString();
     }
 
     //This function's original code comes from https://github.com/parrt/cs652/blob/master/projects/Java-REPL.md
@@ -120,19 +123,22 @@ public class Reader {
     }
 
     public static void addTestDeclaration() throws IOException {
-        String fileName = "tem/t.java";
+        String fileName = "tem2/t.java";
         String line;
-        String classFrom;
-        if(classAmount == 0) classFrom = "REPL_t";
-        else classFrom = "REPL_t_" + classAmount;
-        line = "public class REPL_t_" + (classAmount + 1) + " extends " + classFrom + " {";
-        addLineToFile(fileName,line);
 
-        line = "    public static " + buf.toString();
-        addLineToFile(fileName,line);
+        FileWriter writer = new FileWriter(fileName);
+        writer.write("import java.io.*;\n");
+        writer.write("import java.util.*;\n");
+        line = "public class t {";
+        writer.write(line);
+
+        line = "    public static " + Reader.buf.toString();
+        writer.write(line);
 
         line = "}";
-        addLineToFile(fileName,line);
+        writer.write(line);
+
+        writer.close();
     }
 
     public static void addLineToFile(String fileName, String line) throws IOException {
