@@ -34,13 +34,15 @@ public class Reader {
         return toBeClean;
     }
 
-    public static void getNewInput(String newInput) throws IOException {
+    public static int getNewInput(String newInput) throws IOException {
         if(toBeClean) {
             Reader.buf = new StringBuilder();
             Reader.s_all = new Stack();
             Reader.in_quotation = false;
             Reader.in_doubleQuotation = false;
         }
+
+        if(Reader.buf.length() == 0 && newInput.equals("")) return -1;
 
         String pattern = "(?<=print )[\\s\\S]*(?=;)";
         Pattern r = Pattern.compile(pattern);
@@ -50,7 +52,7 @@ public class Reader {
             buf = new StringBuilder("System.out.print( " + expr +" );");
             toBeClean = true;
             Reader.classIndex++;
-            return;
+            return 0;
         }
 
         StringReader sr = new StringReader(newInput);
@@ -72,6 +74,8 @@ public class Reader {
         else {
             toBeClean = false;
         }
+
+        return 0;
     }
 
     //This function's original code comes from https://github.com/parrt/cs652/blob/master/projects/Java-REPL.md

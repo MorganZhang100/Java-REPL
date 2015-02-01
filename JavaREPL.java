@@ -21,12 +21,15 @@ public class JavaREPL {
         URL[] urls = new URL[] { file.toURI().toURL() };
         URLClassLoader ul = new URLClassLoader(urls);
 
+        int inputResult;
+
         while(true) {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             System.out.print(">");
             String text = br.readLine();
 
-            Reader.getNewInput(text);
+            inputResult = Reader.getNewInput(text);
+            if(inputResult == -1) continue;
 
             if(Reader.isToBeClean()) {
                 if(Reader.isDeclaration()) {
