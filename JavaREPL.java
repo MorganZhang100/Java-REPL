@@ -25,9 +25,8 @@ public class JavaREPL {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             System.out.print(">");
             String text = br.readLine();
-            StringReader sr = new StringReader(text);
-            BufferedReader br_line = new BufferedReader(sr);
-            Reader.getNewInput(br_line);
+
+            Reader.getNewInput(text);
 
             if(Reader.isToBeClean()) {
                 if(Reader.isDeclaration()) {

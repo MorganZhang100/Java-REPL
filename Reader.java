@@ -4,6 +4,8 @@ import javax.tools.*;
 import java.io.*;
 import java.util.Arrays;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Morgan on 1/28/15.
@@ -32,8 +34,7 @@ public class Reader {
         return toBeClean;
     }
 
-    public static void getNewInput(BufferedReader input) throws IOException {
-        int state;
+    public static void getNewInput(String newInput) throws IOException {
         if(toBeClean) {
             Reader.buf = new StringBuilder();
             Reader.s_all = new Stack();
@@ -41,8 +42,24 @@ public class Reader {
             Reader.in_doubleQuotation = false;
         }
 
-        Reader.input = input;
-        c = input.read();
+        String pattern = "(?<=print )[\\s\\S]*(?=;)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(newInput);
+        if(m.find()) {
+            String expr = m.group(0);
+            buf = new StringBuilder("System.out.print( " + expr +" );");
+            toBeClean = true;
+            Reader.classIndex++;
+            return;
+        }
+
+        StringReader sr = new StringReader(newInput);
+        BufferedReader br_newInput = new BufferedReader(sr);
+
+        int state;
+
+        Reader.input = br_newInput;
+        c = br_newInput.read();
         while(c!=-1) {
             state = consume();
             if(state == -1) break;
