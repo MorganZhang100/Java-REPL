@@ -13,7 +13,10 @@ public class Reader {
     private static StringBuilder buf = new StringBuilder();    // fill this as you process, character by character
     private static BufferedReader input; // where are we reading from?
     private static int c; // current character of lookahead; reset upon each getNestedString() call
-    private static Stack<Integer> s = new Stack();
+    private static int pre_c = -1; // previous character before the last character of buf ; -1 means no such character exists
+    private static Stack<Integer> s_all = new Stack();
+    private static boolean in_quotation = false;
+    private static boolean in_doubleQuotation = false;
     private static int classIndex = 0;
     private static boolean toBeClean = true;
 
@@ -33,7 +36,9 @@ public class Reader {
         int state;
         if(toBeClean) {
             Reader.buf = new StringBuilder();
-            Reader.s = new Stack();
+            Reader.s_all = new Stack();
+            Reader.in_quotation = false;
+            Reader.in_doubleQuotation = false;
         }
 
         Reader.input = input;
@@ -43,7 +48,7 @@ public class Reader {
             if(state == -1) break;
         }
 
-        if(s.empty()) {
+        if(s_all.empty()) {
             toBeClean = true;
             Reader.classIndex++;
         }
@@ -75,69 +80,69 @@ public class Reader {
 
     //This function's original code comes from https://github.com/parrt/cs652/blob/master/projects/Java-REPL.md
     public static int consume() throws IOException {
-        int flag = 0;
+        int comment_flag = 0;
+        boolean transferred_flag = false;
+        if(buf.length()>=2) pre_c = buf.charAt(buf.length()-1);
+
         buf.append((char)c);
-        if(c == (int)'/') flag = 1;
+        if(c == (int)'/' && !in_quotation && !in_doubleQuotation) comment_flag = 1;
+        if(c == (int)'\\') transferred_flag = true;
 
         switch (c) {
-            case (int)'(':
-                s.push((int)')');
-                break;
-            case (int)'[':
-                s.push((int)']');
-                break;
-            case (int)'{':
-                s.push((int) '}');
-                break;
-
-            case (int)')':
-                if(!s.empty() && s.peek() == (int)')') s.pop();
-                else {
-                    return -1;
+            case (int)'\'':
+                if(pre_c == -1 || pre_c != (int)'\\') {
+                    in_quotation = !in_quotation;
                 }
                 break;
-            case (int)']':
-                if(!s.empty() && s.peek() == (int)']') s.pop();
-                else {
-                    return -1;
-                }
-                break;
-            case (int)'}':
-                if(!s.empty() && s.peek() == (int)'}') s.pop();
-                else {
-                    return -1;
+            case (int)'\"':
+                if(pre_c == -1 || pre_c != (int)'\\') {
+                    in_doubleQuotation = !in_doubleQuotation;
                 }
                 break;
         }
 
+        if(!in_quotation && !in_doubleQuotation) {
+            switch (c) {
+                case (int)'(':
+                    s_all.push((int)')');
+                    break;
+                case (int)'[':
+                    s_all.push((int)']');
+                    break;
+                case (int)'{':
+                    s_all.push((int) '}');
+                    break;
+
+                case (int)')':
+                    if(!s_all.empty() && s_all.peek() == (int)')') s_all.pop();
+                    else {
+                        return -1;
+                    }
+                    break;
+                case (int)']':
+                    if(!s_all.empty() && s_all.peek() == (int)']') s_all.pop();
+                    else {
+                        return -1;
+                    }
+                    break;
+                case (int)'}':
+                    if(!s_all.empty() && s_all.peek() == (int)'}') s_all.pop();
+                    else {
+                        return -1;
+                    }
+                    break;
+
+
+            }
+        }
+
         c = input.read();
-        if(flag == 1 && c == (int)'/') {
+        if(comment_flag == 1 && c == (int)'/' && !in_quotation && !in_doubleQuotation) {
             buf.deleteCharAt(buf.length()-1);
             return -1;
         }
 
         return 0;
-    }
-
-    //This function's code original comes from http://zhidao.baidu.com/link?url=3K-eO6Gy-tz_hMIB1eCvx6Th7UnX0Aqh47qdGtbas63BgNgCGE9MYjnujxNPRxyDN9DVBcHtjM1z_inttzjKaa
-    public static void copyFile(String oldPath, String newPath) {
-        try {
-            int byteread = 0;
-            File oldfile = new File(oldPath);
-            if (oldfile.exists()) {
-                InputStream inStream = new FileInputStream(oldPath);  //Read the original file
-                FileOutputStream fs = new FileOutputStream(newPath);
-                byte[] buffer = new byte[1444];
-                while ((byteread = inStream.read(buffer)) != -1) {
-                    fs.write(buffer, 0, byteread);
-                }
-                inStream.close();
-            }
-        }
-        catch (Exception e) {
-            System.out.println("Copy File Error!");
-            e.printStackTrace();
-        }
     }
 
     public static void addTestDeclaration() throws IOException {
@@ -156,12 +161,6 @@ public class Reader {
         line = "}";
         writer.write(line);
 
-        writer.close();
-    }
-
-    public static void addLineToFile(String fileName, String line) throws IOException {
-        FileWriter writer = new FileWriter(fileName,true);
-        writer.write(line + "\n");
         writer.close();
     }
 }
