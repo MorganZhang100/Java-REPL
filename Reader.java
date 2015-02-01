@@ -10,28 +10,42 @@ import java.util.Stack;
  * This class's original code is from https://github.com/parrt/cs652/blob/master/projects/Java-REPL.md
  */
 public class Reader {
-    static StringBuilder buf = new StringBuilder();    // fill this as you process, character by character
-    static BufferedReader input; // where are we reading from?
-    static int c; // current character of lookahead; reset upon each getNestedString() call
-    static Stack<Integer> s = new Stack();
+    private static StringBuilder buf = new StringBuilder();    // fill this as you process, character by character
+    private static BufferedReader input; // where are we reading from?
+    private static int c; // current character of lookahead; reset upon each getNestedString() call
+    private static Stack<Integer> s = new Stack();
     private static int classIndex = 0;
+    private static boolean toBeClean = true;
 
     public static int getClassIndex() {
         return classIndex;
     }
 
+    public static boolean isToBeClean() {
+        return toBeClean;
+    }
+
     public static void getNewInput(BufferedReader input) throws IOException {
         int state;
-        Reader.buf = new StringBuilder();
+        if(toBeClean) {
+            Reader.buf = new StringBuilder();
+            Reader.s = new Stack();
+        }
+
         Reader.input = input;
         c = input.read();
         while(c!=-1) {
             state = consume();
             if(state == -1) break;
         }
-        //System.out.println(getNestedString());
 
-        Reader.classIndex++;
+        if(s.empty()) {
+            toBeClean = true;
+            Reader.classIndex++;
+        }
+        else {
+            toBeClean = false;
+        }
     }
 
     //This function's original code comes from https://github.com/parrt/cs652/blob/master/projects/Java-REPL.md

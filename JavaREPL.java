@@ -12,7 +12,6 @@ import java.util.List;
 
 public class JavaREPL {
 	public static void main(String[] args) throws IOException, InvocationTargetException, ClassNotFoundException, InstantiationException, NoSuchMethodException, IllegalAccessException {
-        //newSoftWare();
 
         File file = new File( "tem/" );
         URL[] urls = new URL[] { file.toURI().toURL() };
@@ -26,14 +25,16 @@ public class JavaREPL {
             BufferedReader br_line = new BufferedReader(sr);
             Reader.getNewInput(br_line);
 
-            if(Reader.isDeclaration()) {
-                addDeclaration(Reader.getNestedString());
+            if(Reader.isToBeClean()) {
+                if(Reader.isDeclaration()) {
+                    addDeclaration(Reader.getNestedString());
+                }
+                else {
+                    addStatement(Reader.getNestedString());
+                }
+                compile(Reader.getClassIndex());
+                run(ul, Reader.getClassIndex());
             }
-            else {
-                addStatement(Reader.getNestedString());
-            }
-            compile(Reader.getClassIndex());
-            run(ul, Reader.getClassIndex());
         }
     }
 
