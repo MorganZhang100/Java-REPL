@@ -21,6 +21,10 @@ public class Reader {
         return classIndex;
     }
 
+    public static void decreaseClassIndex() {
+        classIndex--;
+    }
+
     public static boolean isToBeClean() {
         return toBeClean;
     }
@@ -73,7 +77,7 @@ public class Reader {
     public static int consume() throws IOException {
         int flag = 0;
         buf.append((char)c);
-        if(c == (int)'\\') flag = 1;
+        if(c == (int)'/') flag = 1;
 
         switch (c) {
             case (int)'(':
@@ -87,19 +91,19 @@ public class Reader {
                 break;
 
             case (int)')':
-                if(s.peek() == (int)')') s.pop();
+                if(!s.empty() && s.peek() == (int)')') s.pop();
                 else {
                     return -1;
                 }
                 break;
             case (int)']':
-                if(s.peek() == (int)']') s.pop();
+                if(!s.empty() && s.peek() == (int)']') s.pop();
                 else {
                     return -1;
                 }
                 break;
             case (int)'}':
-                if(s.peek() == (int)'}') s.pop();
+                if(!s.empty() && s.peek() == (int)'}') s.pop();
                 else {
                     return -1;
                 }
@@ -107,7 +111,7 @@ public class Reader {
         }
 
         c = input.read();
-        if(flag == 1 && c == (int)'\\') {
+        if(flag == 1 && c == (int)'/') {
             buf.deleteCharAt(buf.length()-1);
             return -1;
         }

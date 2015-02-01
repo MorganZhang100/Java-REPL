@@ -12,6 +12,10 @@ import java.util.List;
 
 public class JavaREPL {
 	public static void main(String[] args) throws IOException, InvocationTargetException, ClassNotFoundException, InstantiationException, NoSuchMethodException, IllegalAccessException {
+        File toRenew = new File("tem/");
+        JavaREPL.deleteAll(toRenew);
+
+        if(!toRenew.exists() && !toRenew.isDirectory()) toRenew.mkdir();
 
         File file = new File( "tem/" );
         URL[] urls = new URL[] { file.toURI().toURL() };
@@ -32,8 +36,11 @@ public class JavaREPL {
                 else {
                     addStatement(Reader.getNestedString());
                 }
-                compile(Reader.getClassIndex());
-                run(ul, Reader.getClassIndex());
+                if(compile(Reader.getClassIndex())) {
+                    run(ul, Reader.getClassIndex());
+                } else{
+                    Reader.decreaseClassIndex();
+                }
             }
         }
     }
@@ -138,9 +145,13 @@ public class JavaREPL {
         System.out.print(ok);
         System.out.println();
 
+        //This loop original code comes from http://docs.oracle.com/javase/7/docs/api/javax/tools/JavaCompiler.html
+        for (Diagnostic diagnostic : diagnostics.getDiagnostics())
+            System.err.format("line %d:  %s%n", diagnostic.getLineNumber(), diagnostic.getMessage(null));
+
         fileManager.close();
 
-        return true;
+        return ok;
     }
 
     //This original code comes from http://www.onjava.com/pub/a/onjava/2003/11/12/classloader.html
@@ -158,5 +169,25 @@ public class JavaREPL {
         System.out.print("Before exec():\n");
         method.invoke(object, null);
         System.out.print("\nAfter exec()\n\n");
+    }
+
+    //This function's origional code comes from http://blog.csdn.net/love_ubuntu/article/details/6673722
+    public static void deleteAll(File file){
+        if(file.exists() || file.isDirectory()) {
+            if(file.isFile() || file.list().length ==0)
+            {
+                file.delete();
+            }else{
+                File[] files = file.listFiles();
+                for (int i = 0; i < files.length; i++) {
+                    deleteAll(files[i]);
+                    files[i].delete();
+                }
+
+                if(file.exists())         //如果文件本身就是目录 ，就要删除目录
+                    file.delete();
+            }
+        }
+
     }
 }
