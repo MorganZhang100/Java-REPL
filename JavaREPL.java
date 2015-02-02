@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JavaREPL {
+    static boolean debug = false;
+
 	public static void main(String[] args) throws IOException, InvocationTargetException, ClassNotFoundException, InstantiationException, NoSuchMethodException, IllegalAccessException {
         File toRenew = new File("tem/");
         JavaREPL.deleteAll(toRenew);
@@ -25,7 +27,7 @@ public class JavaREPL {
 
         while(true) {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-            System.out.print(">");
+            if(Reader.isToBeClean()) System.out.print(">");
             String text = br.readLine();
 
             inputResult = Reader.getNewInput(text);
@@ -143,9 +145,11 @@ public class JavaREPL {
 
         boolean ok = task.call();
 
-        System.out.print("call(): ");
-        System.out.print(ok);
-        System.out.println();
+        if(debug) {
+            System.out.print("call(): ");
+            System.out.print(ok);
+            System.out.println();
+        }
 
         //This loop original code comes from http://docs.oracle.com/javase/7/docs/api/javax/tools/JavaCompiler.html
         for (Diagnostic diagnostic : diagnostics.getDiagnostics())
@@ -158,19 +162,19 @@ public class JavaREPL {
 
     //This original code comes from http://www.onjava.com/pub/a/onjava/2003/11/12/classloader.html
     public static void run(URLClassLoader ul, int classIndex) throws IllegalAccessException, InstantiationException, InvocationTargetException, ClassNotFoundException, MalformedURLException, NoSuchMethodException {
-        System.out.println("Going to load REPL_t_" + classIndex);
+        if(debug) System.out.println("Going to load REPL_t_" + classIndex);
 
         String className = "REPL_t_" + classIndex;
         Class<?> clazz = ul.loadClass(className);
 
-        System.out.println("Class has been successfully loaded");
+        if(debug) System.out.println("Class has been successfully loaded");
 
         Method method = clazz.getDeclaredMethod("exec", null);
 
         Object object = clazz.newInstance();
-        System.out.print("Before exec():\n");
+        if(debug) System.out.print("Before exec():\n");
         method.invoke(object, null);
-        System.out.print("\nAfter exec()\n\n");
+        if(debug) System.out.print("\nAfter exec()\n\n");
     }
 
     //This function's origional code comes from http://blog.csdn.net/love_ubuntu/article/details/6673722

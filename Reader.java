@@ -21,6 +21,7 @@ public class Reader {
     private static boolean in_doubleQuotation = false;
     private static int classIndex = 0;
     private static boolean toBeClean = true;
+    private static boolean debug = false;
 
     public static int getClassIndex() {
         return classIndex;
@@ -49,7 +50,7 @@ public class Reader {
         Matcher m = r.matcher(newInput);
         if(m.find()) {
             String expr = m.group(0);
-            buf = new StringBuilder("System.out.print( " + expr +" );");
+            buf = new StringBuilder("System.out.println( " + expr +" );");
             toBeClean = true;
             Reader.classIndex++;
             return 0;
@@ -90,8 +91,8 @@ public class Reader {
         JavacTask task = (JavacTask) compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
 
         task.parse();
-        System.out.print("parase(): ");
-        System.out.println(diagnostics.getDiagnostics().size() == 0);
+        if(debug) System.out.print("parase(): ");
+        if(debug) System.out.println(diagnostics.getDiagnostics().size() == 0);
         return diagnostics.getDiagnostics().size() == 0;
     }
 
