@@ -1,2 +1,2 @@
-# parrt-repl
-A starter kit for the Java REPL project
+# MorganZhang100-repl
+A Java REPL project for CS652 class.

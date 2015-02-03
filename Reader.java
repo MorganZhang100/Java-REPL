@@ -45,17 +45,6 @@ public class Reader {
 
         if(Reader.buf.length() == 0 && newInput.equals("")) return -1;
 
-        String pattern = "(?<=print )[\\s\\S]*(?=;)";
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(newInput);
-        if(m.find()) {
-            String expr = m.group(0);
-            buf = new StringBuilder("System.out.println( " + expr +" );");
-            toBeClean = true;
-            Reader.classIndex++;
-            return 0;
-        }
-
         StringReader sr = new StringReader(newInput);
         BufferedReader br_newInput = new BufferedReader(sr);
 
@@ -81,6 +70,13 @@ public class Reader {
 
     //This function's original code comes from https://github.com/parrt/cs652/blob/master/projects/Java-REPL.md
     public static boolean isDeclaration() throws IOException {
+        String pattern = "(?<=print )[\\s\\S]*(?=;)";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(buf.toString());
+        if(m.find()) {
+            String expr = m.group(0);
+            buf = new StringBuilder("System.out.println( " + expr +" );");
+        }
 
         //copyFile("tem/REPL_t_0.java","tem2/t.java");
         addTestDeclaration();
