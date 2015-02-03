@@ -81,13 +81,14 @@ public class Reader {
 
     //This function's original code comes from https://github.com/parrt/cs652/blob/master/projects/Java-REPL.md
     public static boolean isDeclaration() throws IOException {
+
         //copyFile("tem/REPL_t_0.java","tem2/t.java");
         addTestDeclaration();
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
-        Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Arrays.asList("tem2/t.java"));
+        Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Arrays.asList("tem/testDeclaration.java"));
         JavacTask task = (JavacTask) compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
 
         task.parse();
@@ -168,13 +169,13 @@ public class Reader {
     }
 
     public static void addTestDeclaration() throws IOException {
-        String fileName = "tem2/t.java";
+        String fileName = "tem/testDeclaration.java";
         String line;
 
         FileWriter writer = new FileWriter(fileName);
         writer.write("import java.io.*;\n");
         writer.write("import java.util.*;\n");
-        line = "public class t {";
+        line = "public class testDeclaration {";
         writer.write(line);
 
         line = "    public static " + Reader.buf.toString();

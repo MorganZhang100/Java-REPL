@@ -15,7 +15,7 @@ public class JavaREPL {
 
 	public static void main(String[] args) throws IOException, InvocationTargetException, ClassNotFoundException, InstantiationException, NoSuchMethodException, IllegalAccessException {
         File toRenew = new File("tem/");
-        JavaREPL.deleteAll(toRenew);
+        deleteAll(toRenew);
 
         if(!toRenew.exists() && !toRenew.isDirectory()) toRenew.mkdir();
 
@@ -28,7 +28,13 @@ public class JavaREPL {
         while(true) {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             if(Reader.isToBeClean()) System.out.print(">");
+
             String text = br.readLine();
+
+            if(text == null) {
+                deleteAll(toRenew);
+                return;
+            }
 
             inputResult = Reader.getNewInput(text);
             if(inputResult == -1) continue;
@@ -169,11 +175,11 @@ public class JavaREPL {
 
         if(debug) System.out.println("Class has been successfully loaded");
 
-        Method method = clazz.getDeclaredMethod("exec", null);
+        Method method = clazz.getDeclaredMethod("exec");
 
         Object object = clazz.newInstance();
         if(debug) System.out.print("Before exec():\n");
-        method.invoke(object, null);
+        method.invoke(object);
         if(debug) System.out.print("\nAfter exec()\n\n");
     }
 
