@@ -78,7 +78,6 @@ public class Reader {
             buf = new StringBuilder("System.out.println( " + expr +" );");
         }
 
-        //copyFile("tem/REPL_t_0.java","tem2/t.java");
         addTestDeclaration();
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -100,12 +99,10 @@ public class Reader {
     //This function's original code comes from https://github.com/parrt/cs652/blob/master/projects/Java-REPL.md
     public static int consume() throws IOException {
         int comment_flag = 0;
-        boolean transferred_flag = false;
         if(buf.length()>=2) pre_c = buf.charAt(buf.length()-1);
 
         buf.append((char)c);
         if(c == (int)'/' && !in_quotation && !in_doubleQuotation) comment_flag = 1;
-        if(c == (int)'\\') transferred_flag = true;
 
         switch (c) {
             case (int)'\'':

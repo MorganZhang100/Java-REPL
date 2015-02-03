@@ -14,13 +14,12 @@ public class JavaREPL {
     static boolean debug = false;
 
 	public static void main(String[] args) throws IOException, InvocationTargetException, ClassNotFoundException, InstantiationException, NoSuchMethodException, IllegalAccessException {
-        File toRenew = new File("tem/");
-        deleteAll(toRenew);
+        File temDir = new File("tem/");
+        deleteAll(temDir);
 
-        if(!toRenew.exists() && !toRenew.isDirectory()) toRenew.mkdir();
+        if(!temDir.exists() && !temDir.isDirectory()) temDir.mkdir();
 
-        File file = new File( "tem/" );
-        URL[] urls = new URL[] { file.toURI().toURL() };
+        URL[] urls = new URL[] { temDir.toURI().toURL() };
         URLClassLoader ul = new URLClassLoader(urls);
 
         int inputResult;
@@ -32,7 +31,7 @@ public class JavaREPL {
             String text = br.readLine();
 
             if(text == null) {
-                deleteAll(toRenew);
+                deleteAll(temDir);
                 return;
             }
 
@@ -46,6 +45,7 @@ public class JavaREPL {
                 else {
                     addStatement(Reader.getNestedString());
                 }
+
                 if(compile(Reader.getClassIndex())) {
                     run(ul, Reader.getClassIndex());
                 } else{
@@ -129,12 +129,6 @@ public class JavaREPL {
         writer.close();
     }
 
-    public static void addLineToFile(String fileName, String line) throws IOException {
-        FileWriter writer = new FileWriter(fileName,true);
-        writer.write(line + "\n");
-        writer.close();
-    }
-
     //This function's original code comes from https://github.com/parrt/cs652/blob/master/projects/Java-REPL.md
     public static boolean compile(int classIndex) throws IOException {
         List c = new ArrayList();
@@ -146,7 +140,6 @@ public class JavaREPL {
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
         Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(c);
-        //Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Arrays.asList("tem/REPL_t_" + Reader.getClassIndex() + ".java"));
         JavacTask task = (JavacTask) compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
 
         boolean ok = task.call();
@@ -196,8 +189,7 @@ public class JavaREPL {
                     files[i].delete();
                 }
 
-                if(file.exists())         //如果文件本身就是目录 ，就要删除目录
-                    file.delete();
+                if(file.exists()) file.delete();
             }
         }
 
