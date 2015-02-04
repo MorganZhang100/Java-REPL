@@ -48,7 +48,7 @@ public class Reader {
         StringReader sr = new StringReader(newInput);
         BufferedReader br_newInput = new BufferedReader(sr);
 
-        int state;
+        int state = 0;
 
         Reader.input = br_newInput;
         c = br_newInput.read();
@@ -57,7 +57,7 @@ public class Reader {
             if(state == -1) break;
         }
 
-        if(s_all.empty()) {
+        if(s_all.empty() || state == -1) {
             toBeClean = true;
             Reader.classIndex++;
         }
@@ -106,12 +106,12 @@ public class Reader {
 
         switch (c) {
             case (int)'\'':
-                if(pre_c == -1 || pre_c != (int)'\\') {
+                if(pre_c != (int)'\\') {
                     in_quotation = !in_quotation;
                 }
                 break;
             case (int)'\"':
-                if(pre_c == -1 || pre_c != (int)'\\') {
+                if(pre_c != (int)'\\') {
                     in_doubleQuotation = !in_doubleQuotation;
                 }
                 break;
@@ -147,8 +147,6 @@ public class Reader {
                         return -1;
                     }
                     break;
-
-
             }
         }
 
