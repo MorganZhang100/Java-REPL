@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
  */
 public class Reader {
     private static StringBuilder buf = new StringBuilder();    // fill this as you process, character by character
+    private static String testMultiDeclaration;
     private static BufferedReader input; // where are we reading from?
     private static int c; // current character of lookahead; reset upon each getNestedString() call
     private static int pre_c = -1; // previous character before the last character of buf ; -1 means no such character exists
@@ -33,6 +34,24 @@ public class Reader {
 
     public static boolean isToBeClean() {
         return toBeClean;
+    }
+
+    public static boolean stillTestMultiDeclaration() {
+        return testMultiDeclaration.length() != 0;
+    }
+
+    public static String getMultiDeclaration() throws IOException {
+        int i = 0;
+        for (i=0; i<=testMultiDeclaration.length(); i++) {
+            String t = testMultiDeclaration.substring(0,i);
+            if(isMultiDeclaration(t)) {
+                if(i<testMultiDeclaration.length()) testMultiDeclaration = testMultiDeclaration.substring(i,testMultiDeclaration.length());
+                else testMultiDeclaration = "";
+                return t;
+            }
+        }
+
+        return "";
     }
 
     public static int getNewInput(String newInput) throws IOException {
@@ -84,6 +103,26 @@ public class Reader {
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
         Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Arrays.asList("tem/testDeclaration.java"));
+        JavacTask task = (JavacTask) compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
+
+        task.parse();
+        if(debug) System.out.print("parase(): ");
+        if(debug) System.out.println(diagnostics.getDiagnostics().size() == 0);
+
+        if(diagnostics.getDiagnostics().size() == 0) testMultiDeclaration = buf.toString();
+        else testMultiDeclaration = "";
+
+        return diagnostics.getDiagnostics().size() == 0;
+    }
+
+    //This function's original code comes from https://github.com/parrt/cs652/blob/master/projects/Java-REPL.md
+    public static boolean isMultiDeclaration(String s) throws IOException {
+        addTestMultiDeclaration(s);
+
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+        DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+        StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
+        Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromStrings(Arrays.asList("tem/testMultiDeclaration.java"));
         JavacTask task = (JavacTask) compiler.getTask(null, fileManager, diagnostics, null, null, compilationUnits);
 
         task.parse();
@@ -170,6 +209,25 @@ public class Reader {
         writer.write(line);
 
         line = "    public static " + Reader.buf.toString();
+        writer.write(line);
+
+        line = "}";
+        writer.write(line);
+
+        writer.close();
+    }
+
+    public static void addTestMultiDeclaration(String s) throws IOException {
+        String fileName = "tem/testMultiDeclaration.java";
+        String line;
+
+        FileWriter writer = new FileWriter(fileName);
+        writer.write("import java.io.*;\n");
+        writer.write("import java.util.*;\n");
+        line = "public class testMultiDeclaration {";
+        writer.write(line);
+
+        line = "    public static " + s;
         writer.write(line);
 
         line = "}";

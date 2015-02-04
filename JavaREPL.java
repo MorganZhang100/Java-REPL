@@ -40,7 +40,11 @@ public class JavaREPL {
 
             if(Reader.isToBeClean()) {
                 if(Reader.isDeclaration()) {
-                    addDeclaration(Reader.getNestedString());
+                    addDeclarationPartOne();
+                    while(Reader.stillTestMultiDeclaration()) {
+                        addMultiDeclaration(Reader.getMultiDeclaration());
+                    }
+                    addMultiDeclarationPartTwo();
                 }
                 else {
                     addStatement(Reader.getNestedString());
@@ -87,6 +91,59 @@ public class JavaREPL {
         writer.write(line);
 
         line = "\n}";
+        writer.write(line);
+
+        writer.close();
+    }
+
+    public static void addDeclarationPartOne() throws IOException {
+        String fileName = "tem/REPL_t_" + Reader.getClassIndex() + ".java";
+        FileWriter writer = new FileWriter(fileName);
+
+        writer.write("import java.io.*;\n");
+        writer.write("import java.util.*;\n");
+
+        String line;
+
+        if(Reader.getClassIndex() != 1) {
+            String classFrom;
+            classFrom = "REPL_t_" + (Reader.getClassIndex() - 1);
+
+            line = "public class REPL_t_" + Reader.getClassIndex() + " extends " + classFrom + " {";
+            writer.write(line);
+        }
+        else {
+            line = "public class REPL_t_1 {";
+            writer.write(line);
+        }
+
+        writer.close();
+    }
+
+    public static void addMultiDeclarationPartTwo() throws IOException {
+        String fileName = "tem/REPL_t_" + Reader.getClassIndex() + ".java";
+        FileWriter writer = new FileWriter(fileName,true);
+        String line;
+
+        line = "\n    public static void exec() {";
+        writer.write(line);
+
+        line = "\n    }";
+        writer.write(line);
+
+        line = "\n}";
+        writer.write(line);
+
+        writer.close();
+    }
+
+    public static void addMultiDeclaration(String s) throws IOException {
+        String fileName = "tem/REPL_t_" + Reader.getClassIndex() + ".java";
+        FileWriter writer = new FileWriter(fileName,true);
+
+        String line;
+
+        line = "\n    public static " + s;
         writer.write(line);
 
         writer.close();
@@ -172,7 +229,13 @@ public class JavaREPL {
 
         Object object = clazz.newInstance();
         if(debug) System.out.print("Before exec():\n");
-        method.invoke(object);
+        try {
+            method.invoke(object);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
         if(debug) System.out.print("\nAfter exec()\n\n");
     }
 
