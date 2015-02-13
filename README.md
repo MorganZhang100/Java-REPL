@@ -1,12 +1,11 @@
 # Morgan Zhang's Java-REPL Project
 A Java REPL project for CS652 class. For more information please see [here](https://github.com/parrt/cs652/blob/master/README.md "More Info").
 
-Source file are *.java files.
+Source file are JavaREPL.java and Reader.java.  
 
 ##Java-REPL
-This is a read-eval-print loop (REPL) interface for Java code similar to Python's interactive shell.
-
-And it looks like this (it's running in the terminal):
+This is a read-eval-print loop (REPL) interface for Java code similar to Python's interactive shell.  
+And it looks like this (running in the terminal):
 ```
 >int a = 10;
 >int b = 20;
